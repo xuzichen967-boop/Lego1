@@ -3,13 +3,11 @@ import { motion } from 'motion/react';
 import {
   Bird,
   Box,
-  Camera,
   ChevronLeft,
   ChevronRight,
   Code2,
   Copy,
   Download,
-  Grid3X3,
   Hammer,
   Pause,
   Play,
@@ -281,7 +279,7 @@ export default function Generator() {
           leftPanelCollapsed && 'border-none'
         )}
       >
-        <div className="p-6 flex flex-col gap-6 overflow-y-auto custom-scrollbar flex-1 min-w-[320px]">
+        <div className="p-6 flex flex-col gap-6 flex-1 min-h-0 min-w-[320px] overflow-hidden">
           <div className="space-y-1">
             <h2 className="text-xs font-bold tracking-widest uppercase text-tertiary font-headline">Workbench</h2>
             <p className="text-xl font-bold font-headline leading-tight">Use the new UI to control your 3D Lego voxel builds</p>
@@ -345,12 +343,12 @@ export default function Generator() {
             )}
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3 min-h-0 flex-1 flex flex-col">
             <div className="flex items-center justify-between">
               <h3 className="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">History</h3>
               <span className="text-[10px] text-on-surface-variant">{history.length} entries</span>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 overflow-y-auto custom-scrollbar pr-2 min-h-0 flex-1">
               {history.map((item) => (
                 <div key={item.id} className="rounded-xl bg-surface-container-high px-4 py-3 border border-outline-variant/10">
                   <div className="text-sm font-bold text-on-surface">{item.prompt}</div>
@@ -375,7 +373,7 @@ export default function Generator() {
       </button>
 
       <main className="flex-1 min-w-0 min-h-0 relative flex flex-col bg-background overflow-hidden">
-        <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-1 p-1.5 bg-surface-container-high/75 backdrop-blur-xl rounded-full border border-outline-variant/20 shadow-[0_18px_40px_rgba(0,0,0,0.32)] z-20">
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-2 p-1.5 bg-surface-container-high/75 backdrop-blur-xl rounded-full border border-outline-variant/20 shadow-[0_18px_40px_rgba(0,0,0,0.32)] z-20">
           <button
             onClick={() => {
               if (currentModelData.length) {
@@ -386,18 +384,13 @@ export default function Generator() {
           >
             <RefreshCw className="w-5 h-5" />
           </button>
+          <div className="w-px h-5 bg-outline-variant/30"></div>
           <button onClick={handleToggleRotation} className="p-2 hover:bg-surface-bright rounded-full text-on-surface-variant hover:text-tertiary transition-all">
             {isAutoRotate ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
           </button>
+          <div className="w-px h-5 bg-outline-variant/30"></div>
           <button onClick={openExportModal} className="p-2 hover:bg-surface-bright rounded-full text-on-surface-variant hover:text-tertiary transition-all">
             <Code2 className="w-5 h-5" />
-          </button>
-          <div className="w-px h-4 bg-outline-variant/30 mx-1"></div>
-          <button className="p-2 hover:bg-surface-bright rounded-full text-on-surface-variant hover:text-tertiary transition-all">
-            <Grid3X3 className="w-5 h-5" />
-          </button>
-          <button className="p-2 hover:bg-surface-bright rounded-full text-on-surface-variant hover:text-tertiary transition-all">
-            <Camera className="w-5 h-5" />
           </button>
         </div>
 
