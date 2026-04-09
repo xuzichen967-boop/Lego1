@@ -272,12 +272,12 @@ export default function Generator() {
   }
 
   return (
-    <div className="flex flex-1 overflow-hidden relative">
+    <div className="flex flex-1 min-h-0 overflow-hidden relative">
       <motion.aside
         initial={false}
         animate={{ width: leftPanelCollapsed ? 0 : 320, opacity: leftPanelCollapsed ? 0 : 1 }}
         className={cn(
-          'glass-panel flex flex-col border-r border-outline-variant/10 relative z-30 overflow-hidden',
+          'glass-panel flex flex-col min-h-0 border-r border-outline-variant/10 relative z-30 overflow-hidden',
           leftPanelCollapsed && 'border-none'
         )}
       >
@@ -374,7 +374,7 @@ export default function Generator() {
         {leftPanelCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </button>
 
-      <main className="flex-1 relative flex flex-col bg-background overflow-hidden">
+      <main className="flex-1 min-w-0 min-h-0 relative flex flex-col bg-background overflow-hidden">
         <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-1 p-1.5 bg-surface-container-high/75 backdrop-blur-xl rounded-full border border-outline-variant/20 shadow-[0_18px_40px_rgba(0,0,0,0.32)] z-20">
           <button
             onClick={() => {
@@ -451,7 +451,7 @@ export default function Generator() {
         </div>
       </main>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-6 z-50 flex justify-center px-6">
+      <div className="pointer-events-none fixed left-1/2 bottom-6 z-50 flex -translate-x-1/2 justify-center px-6">
         <div className="pointer-events-auto flex flex-wrap items-center justify-center gap-3 rounded-[28px] border border-outline-variant/20 bg-surface-container-high/80 p-3 shadow-[0_24px_50px_rgba(0,0,0,0.34)] backdrop-blur-xl">
           <button
             onClick={() => engineRef.current?.dismantle()}
@@ -490,7 +490,7 @@ export default function Generator() {
         initial={false}
         animate={{ width: rightPanelCollapsed ? 0 : 320, opacity: rightPanelCollapsed ? 0 : 1 }}
         className={cn(
-          'glass-panel flex flex-col border-l border-outline-variant/10 relative z-30 overflow-hidden',
+          'glass-panel flex flex-col min-h-0 border-l border-outline-variant/10 relative z-30 overflow-hidden',
           rightPanelCollapsed && 'border-none'
         )}
       >
