@@ -20,6 +20,8 @@ export class VoxelEngine {
   private animationId = 0;
   private onStateChange: (state: AppState) => void;
   private onCountChange: (count: number) => void;
+  private framingRadius = 12;
+  private framingCenter = new THREE.Vector3(0, 5, 0);
 
   constructor(
     container: HTMLElement,
@@ -83,6 +85,7 @@ export class VoxelEngine {
 
   public loadInitialModel(data: VoxelData[]) {
     this.createVoxels(data);
+    this.fitCameraToData(data);
     this.onCountChange(this.voxels.length);
     this.state = AppState.STABLE;
     this.onStateChange(this.state);
@@ -172,10 +175,15 @@ export class VoxelEngine {
     this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+    this.applyCameraFraming();
   }
 
   public setAutoRotate(enabled: boolean) {
     this.controls.autoRotate = enabled;
+  }
+
+  public focusModel(data: VoxelData[]) {
+    this.fitCameraToData(data);
   }
 
   public getJsonData(): string {
@@ -258,6 +266,43 @@ export class VoxelEngine {
     this.scene.add(this.brickBodyMesh);
     this.scene.add(this.brickStudMesh);
     this.draw();
+  }
+
+  private fitCameraToData(data: VoxelData[]) {
+    if (!data.length) {
+      return;
+    }
+
+    const bounds = new THREE.Box3();
+    data.forEach((voxel) => {
+      bounds.expandByPoint(new THREE.Vector3(voxel.x, voxel.y, voxel.z));
+    });
+
+    const size = bounds.getSize(new THREE.Vector3());
+    const center = bounds.getCenter(new THREE.Vector3());
+    const maxDimension = Math.max(size.x, size.y, size.z, 6);
+
+    this.framingCenter.copy(center);
+    this.framingCenter.y = Math.max(center.y, 4);
+    this.framingRadius = maxDimension * 0.72;
+    this.applyCameraFraming();
+  }
+
+  private applyCameraFraming() {
+    const aspect = Math.max(this.container.clientWidth / Math.max(this.container.clientHeight, 1), 1);
+    const fov = THREE.MathUtils.degToRad(this.camera.fov);
+    const horizontalFov = 2 * Math.atan(Math.tan(fov / 2) * aspect);
+    const fitFov = Math.min(fov, horizontalFov);
+    const distance = (this.framingRadius * 1.7) / Math.tan(fitFov / 2);
+
+    this.controls.target.lerp(this.framingCenter, 1);
+    this.camera.position.set(
+      this.framingCenter.x + distance * 0.62,
+      this.framingCenter.y + distance * 0.52,
+      this.framingCenter.z + distance
+    );
+    this.camera.lookAt(this.framingCenter);
+    this.controls.update();
   }
 
   private draw() {

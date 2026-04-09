@@ -75,9 +75,12 @@ export default function Generator() {
     syncPartsFromVoxels(initialModel);
 
     const handleResize = () => engine.handleResize();
+    const resizeObserver = new ResizeObserver(() => engine.handleResize());
     window.addEventListener('resize', handleResize);
+    resizeObserver.observe(viewerRef.current);
     return () => {
       window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
       engine.cleanup();
     };
   }, []);
@@ -116,6 +119,7 @@ export default function Generator() {
 
   function rebuildModel(name: string, data: VoxelData[]) {
     engineRef.current?.rebuild(data);
+    engineRef.current?.focusModel(data);
     setCurrentModelData(data);
     syncPartsFromVoxels(data);
     setHistory((prev) => [{ id: `${Date.now()}`, prompt: `${currentBaseModel} -> ${name}`, timestamp: Date.now() }, ...prev.slice(0, 7)]);
@@ -371,7 +375,7 @@ export default function Generator() {
       </button>
 
       <main className="flex-1 relative flex flex-col bg-background overflow-hidden">
-        <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-1 p-1 bg-surface-container-high/70 backdrop-blur-xl rounded-full border border-outline-variant/20 shadow-2xl z-20">
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-1 p-1.5 bg-surface-container-high/75 backdrop-blur-xl rounded-full border border-outline-variant/20 shadow-[0_18px_40px_rgba(0,0,0,0.32)] z-20">
           <button
             onClick={() => {
               if (currentModelData.length) {
@@ -397,14 +401,16 @@ export default function Generator() {
           </button>
         </div>
 
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 rounded-full bg-surface-container-high/60 backdrop-blur-xl px-4 py-2 border border-outline-variant/20">
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 rounded-full bg-surface-container-high/68 backdrop-blur-xl px-4 py-2 border border-outline-variant/20 shadow-[0_14px_32px_rgba(0,0,0,0.24)]">
           <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Voxels</span>
           <span className="text-lg font-black text-secondary">{voxelCount}</span>
           <span className="text-xs font-bold uppercase tracking-widest text-tertiary">{appState}</span>
         </div>
 
         <div className="flex-1 flex items-center justify-center overflow-hidden relative">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#1d2f52_0%,#0b1326_48%,#07101d_100%)]"></div>
           <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #424752 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
+          <div className="absolute inset-x-[8%] top-[12%] bottom-[12%] rounded-[40px] border border-white/6 bg-white/[0.03] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"></div>
           <div ref={viewerRef} className="absolute inset-0 z-10" />
 
           {!modelLoaded && !isGenerating && (
@@ -442,40 +448,43 @@ export default function Generator() {
             </div>
           </div>
 
-          <div className="absolute bottom-6 right-6 z-20 flex gap-3">
-            <button
-              onClick={() => engineRef.current?.dismantle()}
-              disabled={!canBreak}
-              className="stud-button px-5 py-3 rounded-xl bg-primary text-on-primary font-headline font-bold flex items-center gap-2 disabled:opacity-50"
-            >
-              <Hammer className="w-4 h-4" />
-              Break
-            </button>
-            <button
-              onClick={() => handlePresetRebuild('Cat')}
-              disabled={!canRebuild}
-              className="stud-button px-5 py-3 rounded-xl bg-surface-container-high text-on-surface font-headline font-bold disabled:opacity-50"
-            >
-              Cat
-            </button>
-            <button
-              onClick={() => handlePresetRebuild('Rabbit')}
-              disabled={!canRebuild}
-              className="stud-button px-5 py-3 rounded-xl bg-surface-container-high text-on-surface font-headline font-bold disabled:opacity-50 flex items-center gap-2"
-            >
-              <Rabbit className="w-4 h-4" />
-              Rabbit
-            </button>
-            <button
-              onClick={() => handlePresetRebuild('Twins')}
-              disabled={!canRebuild}
-              className="stud-button px-5 py-3 rounded-xl bg-surface-container-high text-on-surface font-headline font-bold disabled:opacity-50"
-            >
-              Eagles x2
-            </button>
-          </div>
         </div>
       </main>
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-6 z-50 flex justify-center px-6">
+        <div className="pointer-events-auto flex flex-wrap items-center justify-center gap-3 rounded-[28px] border border-outline-variant/20 bg-surface-container-high/80 p-3 shadow-[0_24px_50px_rgba(0,0,0,0.34)] backdrop-blur-xl">
+          <button
+            onClick={() => engineRef.current?.dismantle()}
+            disabled={!canBreak}
+            className="stud-button px-5 py-3 rounded-xl bg-primary text-on-primary font-headline font-bold flex items-center gap-2 disabled:opacity-50"
+          >
+            <Hammer className="w-4 h-4" />
+            Break
+          </button>
+          <button
+            onClick={() => handlePresetRebuild('Cat')}
+            disabled={!canRebuild}
+            className="stud-button px-5 py-3 rounded-xl bg-surface-container-high text-on-surface font-headline font-bold disabled:opacity-50"
+          >
+            Cat
+          </button>
+          <button
+            onClick={() => handlePresetRebuild('Rabbit')}
+            disabled={!canRebuild}
+            className="stud-button px-5 py-3 rounded-xl bg-surface-container-high text-on-surface font-headline font-bold disabled:opacity-50 flex items-center gap-2"
+          >
+            <Rabbit className="w-4 h-4" />
+            Rabbit
+          </button>
+          <button
+            onClick={() => handlePresetRebuild('Twins')}
+            disabled={!canRebuild}
+            className="stud-button px-5 py-3 rounded-xl bg-surface-container-high text-on-surface font-headline font-bold disabled:opacity-50"
+          >
+            Eagles x2
+          </button>
+        </div>
+      </div>
 
       <motion.aside
         initial={false}
